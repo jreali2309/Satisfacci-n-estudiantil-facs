@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Dashboard UNEMI - Facultad y Carreras</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
+    h1 { text-align: center; color: #003A63; }
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
+    .title { font-size: 20px; color: #009345; margin-bottom: 10px; font-weight: bold; }
+    #filtro { width: 250px; padding: 10px; border-radius: 8px; border: 2px solid #003A63; margin-bottom: 20px; font-size: 16px; }
+</style>
+</head>
+<body>
+
+<h1>Dashboard de Satisfacción Estudiantil - UNEMI</h1>
+
+<div class="card" style="text-align:center; background:#003A63; color:white;">
+    <div style="font-size:22px; font-weight:bold;">TOTAL DE PERCEPCIÓN - FACS</div>
+    <div style="font-size:70px; font-weight:bold; margin-top:10px;">70.99%</div>
+</div>
+
+<!-- PRIMER GRÁFICO: FACULTAD COMPLETA (4 CARRERAS) -->
+<div class="card">
+    <div class="title">Percepción Global por Carrera</div>
+    <canvas id="chartFacultad"></canvas>
+</div>
+
+<!-- SEGUNDO GRÁFICO: POR CARRERA Y TODOS SUS INDICADORES -->
+<div class="card">
+    <div class="title">Seleccione una Carrera</div>
+    <select id="filtro">
+        <option value="Nutrición">Nutrición</option>
+        <option value="Medicina">Medicina</option>
+        <option value="Fisioterapia">Fisioterapia</option>
+        <option value="Enfermería">Enfermería</option>
+    </select>
+
+    <canvas id="chartIndicador"></canvas>
+</div>
+
+<script>
+// Registrar el plugin de datalabels con Chart.js
+Chart.register(window.ChartDataLabels);
+
+// DATOS TOTALES POR CARRERA
+const totales = {
+    labels: ["Nutrición", "Medicina", "Fisioterapia", "Enfermería"],
+    valores: [67.65, 76.38, 71.98, 67.86]
+};
+
+// GRÁFICO SUPERIOR (FACULTAD COMPLETA)
+new Chart(document.getElementById('chartFacultad'), {
+    type: 'bar',
+    data: {
+        labels: totales.labels,
+        datasets: [{
+            label: 'Percepción Total (%)',
+            data: totales.valores,
+            backgroundColor: ['#009639', '#003A63', '#009639', '#003A63'],
+            borderColor: '#003A63',
+            borderWidth: 2
+        }]
+    },
+    options: { 
+        responsive: true, 
+        scales: { y: { beginAtZero: true } },
+        plugins: { 
+            datalabels: { 
+                anchor: 'center',
+                align: 'center',
+                color: 'white',
+                font: {weight:'bold', size:16},
+                formatter: function(v){ return v.toFixed(2).replace('.', ',') + '%'; }
+            }
+        }
+    },
+    plugins: [ChartDataLabels]
+});
+
+// INDICADORES COMPLETOS
+const indicadores = [
+    "Cantidad y pertinencia de las tareas y evaluaciones asignadas",
+    "Calidad de Tutorías Académicas",
+    "Disponibilidad de equipos y materiales para actividades prácticas",
+    "Servicios de atención médica, psicológica, odontológica y nutricional",
+    "Instalaciones deportivas disponibles",
+    "Rapidez en respuesta a consultas o requerimientos",
+    "Agilidad en matrícula, homologación y trámites administrativos",
+    "Oportunidades en proyectos de investigación",
+    "Acompañamiento en prácticas preprofesionales",
+    "Seguridad y bienestar en el campus"
+];
+
+// VALORES POR CARRERA
+const datos = {
+    'Nutrición': [65.57,68.85,69.29,66.81,69.16,65.33,66.01,67.00,68.67,69.85],
+    'Medicina': [34.66,83.63,82.74,80.40,79.19,77.58,78.63,81.13,82.02,83.79],
+    'Fisioterapia': [72.52,74.36,71.11,71.71,72.09,67.99,71.15,71.75,73.38,73.76],
+    'Enfermería': [67.25,69.36,66.78,66.07,68.49,65.50,66.91,68.69,69.16,70.40]
+};
+
+let ctxInd = document.getElementById('chartIndicador');
+let chart = new Chart(ctxInd, {
+    type: 'bar',
+    data: {
+        labels: indicadores,
+        datasets: [{
+            label: 'Valores (%) - Nutrición',
+            data: datos['Nutrición'],
+            backgroundColor: '#009639',
+            borderColor: '#003A63',
+            borderWidth: 2
+        }]
+    },
+    options: { 
+        responsive: true, 
+        scales: { y: { beginAtZero: true } }, 
+        plugins: { 
+            legend: { display: true }, 
+            datalabels: { 
+                anchor:'center',
+                align:'center',
+                color:'white',
+                font:{weight:'bold', size:14},
+                formatter: function(v){ return v.toFixed(2).replace('.', ',') + '%'; }
+            } 
+        }
+    },
+    plugins: [ChartDataLabels]
+});
+
+document.getElementById('filtro').addEventListener('change', function() {
+    const carrera = this.value;
+    chart.data.datasets[0].data = datos[carrera];
+    chart.data.datasets[0].label = `Valores (%) - ${carrera}`;
+    chart.update();
+});
+</script>
+
+</body>
+</html>
